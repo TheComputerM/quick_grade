@@ -89,13 +89,17 @@ fn CourseList(cx: Scope) -> Element {
 
 fn FinalSG(cx: Scope) -> Element {
     let courses = &use_shared_state::<Courses>(cx).unwrap().read().0;
-    let total_credits = f64::from(courses.iter().fold(0, |acc, course| acc + course.credit));
-    let aquired_credits = f64::from(
-        courses
-            .iter()
-            .fold(0, |acc, course| acc + course.credit * course.grade),
-    );
-    let sg = aquired_credits / total_credits;
+    let total_credits = courses.iter().fold(0, |acc, course| acc + course.credit);
+    let aquired_credits = courses
+        .iter()
+        .fold(0, |acc, course| acc + course.credit * course.grade);
+
+    let sg = f64::from(aquired_credits)
+        / if total_credits == 0 {
+            1.0
+        } else {
+            f64::from(total_credits)
+        };
     cx.render(rsx! {
         p {
             sg.to_string()
